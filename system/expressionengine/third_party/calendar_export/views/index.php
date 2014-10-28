@@ -18,6 +18,9 @@
   <?=form_close()?>
 
   <?php if (isset($events)): ?>
+  <?php if (empty($events)): ?>
+  <p>No events found!</p>
+  <?php else: ?>
   <div>
     <table class="events">
       <thead>
@@ -40,5 +43,6 @@
       </tbody>
     </table>
   </div>
+  <?php endif; ?>
   <?php endif; ?>
 </section>

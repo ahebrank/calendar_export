@@ -89,7 +89,7 @@ class Calendar_export_mcp
                 else {
                     $label = "";
                 }
-                $this->_render_csv($events, $label);
+                if (!empty($events)) $this->_render_csv($events, $label);
             }
             $vars['events'] = $events;
             $vars['filter'] = ee()->input->post('filter');
@@ -217,18 +217,18 @@ class Calendar_export_mcp
         return ee()->load->view($view, $vars, true);
     }
 
+    private function _quote_element($element) {
+        $element = str_replace('"', '\"', $element);
+        return '"' . $element . '"';
+    }
+
     private function _render_csv($events, $label) {
         // generate output
         $output = "ID,Title,Categories,Startdate,Enddate\n";
 
-        $quote_element = function($element) {
-            $element = str_replace('"', '\"', $element);
-            return '"' . $element . '"';
-        };
-
         foreach ($events as $id=>$e) {
             $output .= implode(",", 
-                array_map($quote_element, 
+                array_map(array($this, '_quote_element'), 
                     array($id,$e['title'],$e['categories'],$e['start_date'],$e['end_date'])))
                 ."\n";
         }
