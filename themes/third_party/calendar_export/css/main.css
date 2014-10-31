@@ -8,3 +8,17 @@
 #calendar_export div {
 	padding: 20px 0;
 }
+
+#calendar_export .no-decoration {
+	list-style: none;
+}
+
+#calendar_export .no-decoration li label {
+	display: inline;
+}
+
+#calendar_export .flex {
+	-webkit-column-count: 4;
+  -moz-column-count: 4;
+  column-count: 4;
+}

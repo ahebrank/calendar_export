@@ -11,6 +11,19 @@
         <input name="filter[from_date]" type="text" class="datepicker" value="<?=$date_from?>"> - <input name="filter[to_date]" type="text" class="datepicker" value="<?=$date_to?>">
       </span>
     </fieldset>
+    <fieldset>
+      <legend>Fields to show</legend>
+      <ul class="no-decoration flex">
+      <?php
+        foreach ($fields as $id => $label): ?>
+          <li>
+            <input name="fields[<?=$id?>]" type="checkbox" id="field_<?=$id?>" <?php if (isset($fields_selected) && isset($fields_selected[$id])): ?>checked<?php endif; ?> value="1">
+            <label for="field_<?=$id?>"><?=$label?></label>
+          </li>
+      <?php
+        endforeach; ?>
+      </ul>
+    </fieldset>
     <div>
       <input name="submit" class="submit" type="submit" value="Preview"> 
       <input name="submit" class="submit" type="submit" value="Export">
@@ -28,16 +41,26 @@
           <th>Title</th>
           <th>Categories</th>
           <th>Start Date</th>
+          <th>Start Time</th>
           <th>End Date</th>
+          <th>End Time</th>
+          <?php foreach ($events['field_lookup'] as $id => $label): ?>
+            <th><?=$label?></th>
+          <?php endforeach; ?>
         </tr>
       </thead>
       <tbody>
-        <?php foreach ($events as $id=>$e): ?>
+        <?php foreach ($events['entries'] as $id=>$e): ?>
         <tr>
           <td><?=$e['title']?></td>
           <td><?=$e['categories']?></td>
           <td><?=date("Y-m-d", strtotime($e['start_date']))?></td>
+          <td><?=$e['start_time']?></td>
           <td><?=date("Y-m-d", strtotime($e['end_date']))?></td>
+          <td><?=$e['end_time']?></td>
+          <?php foreach ($events['field_lookup'] as $id => $label): ?>
+            <td><?=$e['data'][$id]?></th>
+          <?php endforeach; ?>
         </tr>
         <?php endforeach; ?>
       </tbody>
