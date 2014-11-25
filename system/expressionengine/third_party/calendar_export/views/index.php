@@ -15,10 +15,10 @@
       <legend>Fields to show</legend>
       <ul class="no-decoration flex">
       <?php
-        foreach ($fields as $id => $label): ?>
+        foreach ($fields as $id => $v): ?>
           <li>
             <input name="fields[<?=$id?>]" type="checkbox" id="field_<?=$id?>" <?php if (isset($fields_selected) && isset($fields_selected[$id])): ?>checked<?php endif; ?> value="1">
-            <label for="field_<?=$id?>"><?=$label?></label>
+            <label for="field_<?=$id?>"><?=$v['label']?></label>
           </li>
       <?php
         endforeach; ?>
@@ -44,8 +44,8 @@
           <th>Start Time</th>
           <th>End Date</th>
           <th>End Time</th>
-          <?php foreach ($events['field_lookup'] as $id => $label): ?>
-            <th><?=$label?></th>
+          <?php foreach ($events['field_lookup'] as $id => $v): ?>
+            <th><?=$v['label']?></th>
           <?php endforeach; ?>
         </tr>
       </thead>
@@ -58,7 +58,7 @@
           <td><?=$e['start_time']?></td>
           <td><?=date("Y-m-d", strtotime($e['end_date']))?></td>
           <td><?=$e['end_time']?></td>
-          <?php foreach ($events['field_lookup'] as $id => $label): ?>
+          <?php foreach ($events['field_lookup'] as $id => $v): ?>
             <td><?=$e['data'][$id]?></th>
           <?php endforeach; ?>
         </tr>

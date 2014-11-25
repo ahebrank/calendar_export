@@ -13,8 +13,7 @@ require_once PATH_THIRD.'calendar_export/config.php';
 * @link     http://www.insidenewcity.com
 */
 
-class Calendar_export_mcp
-{
+class Calendar_export_mcp {
 
         // --------------------------------------------------------------------
         /**
@@ -34,8 +33,7 @@ class Calendar_export_mcp
     *
     * @return void
     */
-    public function __construct()
-    {
+    public function __construct() {
         // Republic variable theme folder
         $this->theme_url = ee()->config->item('theme_folder_url') . 'third_party/';
         if (defined('URL_THIRD_THEMES')) {
@@ -56,8 +54,7 @@ class Calendar_export_mcp
     *
     * @return View
     */
-    public function index()
-    {
+    public function index() {
         $this->_cp_title('calendar_export_export');
         ee()->cp->set_breadcrumb(BASE . AMP . $this->module_url, ee()->lang->line('calendar_export_module_name'));
 
@@ -110,7 +107,7 @@ class Calendar_export_mcp
         ee()->db->select('*');
         ee()->db->from('channel_fields');
 
-        $allowed_fields = array('checkboxes', 'select', 'text', 'textarea');
+        $allowed_fields = array('checkboxes', 'select', 'text', 'textarea', 'relationship');
         ee()->db->where_in('field_type', $allowed_fields);
 
         $fields = array();
@@ -118,7 +115,8 @@ class Calendar_export_mcp
         $results = ee()->db->get();
         if ($results->num_rows() > 0) {
             foreach ($results->result_array() as $row) {
-                $fields[$row['field_id']] = $row['field_label'];
+                $fields[$row['field_id']] = array('type' => $row['field_type'],
+                                                'label' => $row['field_label']);
             }
         }
 
@@ -211,13 +209,38 @@ class Calendar_export_mcp
             if (!empty($fields_selected)) {
                 foreach ($fields_selected as $id => $value) {
                     if ($value) {
-                        $entries['entries'][$row['entry_id']]['data'][$id] = $row['field_id_'.$id];
+                        // relationship?
+                        if ($entries['field_lookup'][$id]['type'] == 'relationship') {
+                            $entries['entries'][$row['entry_id']]['data'][$id] = $this->_get_children_titles($row['entry_id'], $id);
+                        }
+                        else {
+                            // regular field
+                            $entries['entries'][$row['entry_id']]['data'][$id] = $row['field_id_'.$id];
+                        }
                     }
                 }
             }
         }
 
         return $entries;
+    }
+
+    // grab relationship titles
+    function _get_children_titles($parent_id, $field_id) {
+        ee()->db->select('*');
+        ee()->db->from('channel_titles t');
+        ee()->db->join('relationships r', 't.entry_id = r.child_id');
+        ee()->db->where('r.parent_id', $parent_id);
+        ee()->db->where('r.field_id', $field_id);
+        $results = ee()->db->get();
+
+        $titles = array();
+        foreach ($results->result_array() as $row) {
+            $titles[] = $row['title'];
+        }
+
+        $titles = implode(", ", $titles);
+        return $titles;
     }
 
 
@@ -233,8 +256,7 @@ class Calendar_export_mcp
         ));
     }
 
-    private function _cp_title($title, $lang_value = true)
-    {
+    private function _cp_title($title, $lang_value = true) {
         if (APP_VER < '2.6.0') {
             $title = ($lang_value) ? ee()->lang->line($title) : $title;
             ee()->cp->set_variable('cp_page_title', $title);
@@ -249,8 +271,7 @@ class Calendar_export_mcp
     *
     * @return void
     */
-    public function _render($view = "", $vars = array(), $nav_array = array())
-    {
+    public function _render($view = "", $vars = array(), $nav_array = array()) {
 
         // Navigation
         $navigation = array(
